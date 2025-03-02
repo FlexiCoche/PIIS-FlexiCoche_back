@@ -1,0 +1,49 @@
+package com.ucam.flexicoche.model;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "vehiculo")
+@Getter
+@Setter
+public class Vehiculo {
+	@Id
+	private Long id;
+	
+	@Column(name = "matricula")
+	private String matricula;
+	
+	@Column(name = "combustible")
+	private String combustible;
+	
+	@Column(name = "color")
+	private String color;
+	
+	@Column(name = "precio_dia")
+	private Float precioDia;
+	
+	@Column(name = "anio_matricula")
+	private Date anioMatricula;
+	
+	@Column(name = "disponibilidad")
+	private int disponibilidad;
+	
+	@Column(name = "nombre")
+	private String nombre;
+	
+	@Column(name = "n_plazas")
+	private Long nPlazas;
+	
+	@Column(name = "transmision")
+	private String transmision;
+	
+
+}
