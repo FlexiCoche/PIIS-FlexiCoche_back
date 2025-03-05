@@ -1,51 +1,56 @@
 package com.ucam.flexicoche.model;
 
-import java.sql.Timestamp;
+import java.sql.Blob;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuario")
 @Getter
 @Setter
 public class Usuario {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@Column(name="nombre_usuario")
-	private String nombreUsuario;
-	
-	@Column(name="contrasena")
-	private String contrasena;
-	
-	@Column(name="correo_electronico")
-	private String correo_electronico;
-	
-	@Column(name="nombre")
+	@Column(name = "correo")
+	private String correo;
+
+	@Column(name = "n_documento")
+	private Long nDocumento;
+
+	@Column(name = "nombre")
 	private String nombre;
-	
-	@Column(name="apellido1")
-	private String apellido1;
-	
-	@Column(name="apellido2")
-	private String apellido2;
-	
-	@Column(name="numero_telefono")
-	private String numero_telefono;
-	
-	@Column(name="direccion")
-	private String direccion;
-	
-	@Column(name="fecha_creacion")
-	private Timestamp fecha_creacion;
+
+	@Column(name = "apellidos")
+	private String apellidos;
+
+	@Column(name = "telefono")
+	private Long telefono;
+
+	@Column(name = "fec_nac")
+	private Date fechaNacimiento;
+
+	@Column(name = "rol")
+	private int rol;
+
+	@Column(name = "foto")
+	private Blob foto;
+
+	@Column(name = "passwd")
+	private String password;
+
+	public List<String> getRoles() {
+		if (rol == 1)
+			return Arrays.asList("ADMIN");
+		return Arrays.asList("USER");
+	}
 
 }

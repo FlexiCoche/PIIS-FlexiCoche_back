@@ -6,7 +6,7 @@ import com.ucam.flexicoche.model.Usuario;
 
 public interface FlexiCocheService {
 
-	public List<Usuario> getUsuarios(String nombreUsuario);
+	public Usuario getUsuarios(String nombreUsuario);
 	
 	public List<Usuario> getUsuarios();
 }
