@@ -71,7 +71,12 @@ public class FlexicocheConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/register", "/token", "/vehiculos").permitAll().anyRequest().authenticated();
+				.antMatchers("/register", "/token", "/vehiculos","/register",
+						"/",
+						"/assets/**",
+						"/js/**",
+						"/templates/**",
+						"/error").permitAll().anyRequest().authenticated();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
