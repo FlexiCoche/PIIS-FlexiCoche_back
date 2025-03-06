@@ -21,6 +21,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @Component
@@ -50,6 +53,14 @@ public class JwtUtils {
 		return jwtDecoder.decode(token).getSubject();
 	}
 
+	public String parseJwt(HttpServletRequest request) {
+		String headerAuth = request.getHeader("Authorization");
+		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+			return headerAuth.substring(7);
+		}
+		return null;
+	}
+
 	public boolean validateJwtToken(String authToken) {
 		try {
 			Jwt jwt = jwtDecoder.decode(authToken);
@@ -68,4 +79,5 @@ public class JwtUtils {
 
 		return false;
 	}
+
 }
