@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.ucam.flexicoche.model.Coche;
 import com.ucam.flexicoche.model.Vehiculo;
-import com.ucam.flexicoche.dto.VehiculoDTO;
 
 public interface VehiculoService {
 
@@ -13,9 +12,14 @@ public interface VehiculoService {
 	// Lista todos los vehiculos
 	List<Vehiculo> getVehiculos();
 	
-	// Lista vehiculo con X matricula
+	// Lista vehiculo con X modelo
+	Vehiculo findVehiculoByNombre(String nombre);
+	
 	Vehiculo findVehiculoByMatricula(String matricula);
 	
+	// Lista vehiculo con disponibilidad
+	/*List<Vehiculo> findVehiculoByDisponibilidad(LocalDate fecha);*/
+		
 	// Guarda vehiculo
 	Vehiculo setVehiculo(Vehiculo vehiculo);
 	
@@ -36,5 +40,11 @@ public interface VehiculoService {
 	
 	// Actualizar campos coche
 	Coche updateVehiculoCochePotencia(String matricula, int potencia);
+
+	/*-------- Metodos Imagen Vehiculo -------*/
+
+	// Actualizar imagen
+	Vehiculo updateVehiculoImagenDesdeURL(String matricula, String imageUrl);
+
 
 }
