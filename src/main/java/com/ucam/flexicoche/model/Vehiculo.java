@@ -2,9 +2,15 @@ package com.ucam.flexicoche.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
@@ -12,9 +18,11 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "vehiculo")
+@Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
 public class Vehiculo {
+	
 	@Id
 	private Long id;
 	
@@ -45,5 +53,8 @@ public class Vehiculo {
 	@Column(name = "transmision")
 	private String transmision;
 	
-
+	@OneToOne(mappedBy = "vehiculo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	//@JoinColumn(name = "id_vehiculo", referencedColumnName = "id")
+	private ImagenVehiculo imagen;
+	
 }
