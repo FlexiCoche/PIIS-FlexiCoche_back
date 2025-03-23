@@ -13,6 +13,7 @@ import com.ucam.flexicoche.model.Usuario;
 import com.ucam.flexicoche.model.Vehiculo;
 import com.ucam.flexicoche.repository.VehiculoRepository;
 import com.ucam.flexicoche.service.VehiculoService;
+import com.ucam.flexicoche.specification.VehiculoSpecification;
 
 
 
@@ -28,14 +29,19 @@ public class VehiculoServiceImpl implements VehiculoService{
 	}
 
 	@Override
-	public Vehiculo findVehiculoByNombre(String nombre) {
-		return vehiculoRepository.findByNombre(nombre);
+	public Vehiculo findVehiculoByMarca(String marca) {
+		return vehiculoRepository.findByMarca(marca);
 	}
 	
 	@Override
 	public Vehiculo findVehiculoByMatricula(String matricula) {
 		return vehiculoRepository.findByMatricula(matricula);
 	}
+	
+	 public List<Vehiculo> buscarVehiculos(String tipo, String marca, String modelo, String localizacion, String color, String combustible, Long nPlazas, 
+			 								String transmision, Long precioMin, Long precioMax) {
+	    return vehiculoRepository.findAll(VehiculoSpecification.filtrar(tipo, marca, modelo, localizacion, color, combustible, nPlazas, transmision, precioMin, precioMax));
+	 }
 	
 	/*@Override
 	public List<Vehiculo> findVehiculoByDisponibilidad(LocalDate fecha) {
@@ -48,11 +54,11 @@ public class VehiculoServiceImpl implements VehiculoService{
 	}
 
 	@Override
-	public Vehiculo updateVehiculo(String nombre, String color, Float precio) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByNombre(nombre);
+	public Vehiculo updateVehiculo(String marca, String color, Float precio) {
+		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
 		
 		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + nombre + " no encontrado. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
 		}
 		
 		vehiculoSelect.setColor(color);
@@ -62,11 +68,11 @@ public class VehiculoServiceImpl implements VehiculoService{
 	}
 
 	@Override
-	public Vehiculo updateStateVehiculo(String nombre, int disponibilidad) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByNombre(nombre);
+	public Vehiculo updateStateVehiculo(String marca, int disponibilidad) {
+		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
 		
 		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + nombre + " no encontrado. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
 		}
 		
 		vehiculoSelect.setDisponibilidad(disponibilidad);
@@ -82,11 +88,11 @@ public class VehiculoServiceImpl implements VehiculoService{
 
 
 	@Override
-	public Coche updateVehiculoCoche(String nombre, String carroceria, int puertas, int potencia) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByNombre(nombre);
+	public Coche updateVehiculoCoche(String marca, String carroceria, int puertas, int potencia) {
+		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
 		
 		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + nombre + " no encontrado. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
 		}
 		
 		if (vehiculoSelect instanceof Coche) {
@@ -97,17 +103,17 @@ public class VehiculoServiceImpl implements VehiculoService{
 			
 			return vehiculoRepository.save(coche);
 		} else {
-			throw new RuntimeException("Vehículo con matrícula: " + nombre + " no es un coche. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo con matrícula: " + marca + " no es un coche. Prueba con otra matrícula.");
 		}
 		
 	}
 
 	@Override
-	public Coche updateVehiculoCochePotencia(String nombre, int potencia) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByNombre(nombre);
+	public Coche updateVehiculoCochePotencia(String marca, int potencia) {
+		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
 		
 		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + nombre + " no encontrado. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
 		}
 		
 		if (vehiculoSelect instanceof Coche) {
@@ -116,7 +122,7 @@ public class VehiculoServiceImpl implements VehiculoService{
 			
 			return vehiculoRepository.save(coche);
 		} else {
-			throw new RuntimeException("Vehículo con matrícula: " + nombre + " no es un coche. Prueba con otra matrícula.");
+			throw new RuntimeException("Vehículo con matrícula: " + marca + " no es un coche. Prueba con otra matrícula.");
 		}
 	}
 

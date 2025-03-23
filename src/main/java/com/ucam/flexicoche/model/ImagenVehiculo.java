@@ -1,5 +1,6 @@
 package com.ucam.flexicoche.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+@JsonIgnoreProperties({"vehiculo"})
 @Entity
 @Table(name = "imagen")
 @PrimaryKeyJoinColumn(name = "id_vehiculo")
