@@ -13,7 +13,7 @@ public interface VehiculoService {
 	List<Vehiculo> getVehiculos();
 	
 	// Lista vehiculo con X modelo
-	Vehiculo findVehiculoByNombre(String nombre);
+	Vehiculo findVehiculoByMarca(String marca);
 	
 	Vehiculo findVehiculoByMatricula(String matricula);
 	

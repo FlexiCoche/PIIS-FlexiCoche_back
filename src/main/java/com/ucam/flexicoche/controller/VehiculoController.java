@@ -32,14 +32,29 @@ public class VehiculoController {
 	}
 		
 	@GetMapping("/{nombre}")
-	public ResponseEntity<Vehiculo> getVehiculoNombre(@PathVariable("nombre") String nombre) {
-		return ResponseEntity.ok(vehiculoServiceImpl.findVehiculoByNombre(nombre));
+	public ResponseEntity<Vehiculo> getVehiculoNombre(@PathVariable("marca") String marca) {
+		return ResponseEntity.ok(vehiculoServiceImpl.findVehiculoByMarca(marca));
 	}
 	
 	@GetMapping("/matricula/{matricula}")
 	public ResponseEntity<Vehiculo> getVehiculoMatricula(@PathVariable("matricula") String matricula) {
 		return ResponseEntity.ok(vehiculoServiceImpl.findVehiculoByMatricula(matricula));
 	}
+	
+	@GetMapping("/buscador")
+    public List<Vehiculo> buscarVehiculos(@RequestParam(required = false) String tipo,
+            							  @RequestParam(required = false) String marca,
+              							  @RequestParam(required = false) String modelo,
+            							  @RequestParam(required = false) String localizacion,
+            							  @RequestParam(required = false) String color,
+            							  @RequestParam(required = false) String combustible,
+            							  @RequestParam(required = false) Long nPlazas,
+              							  @RequestParam(required = false) String transmision,
+            							  @RequestParam(required = false) Long precioMin,
+            							  @RequestParam(required = false) Long precioMax) {
+        System.out.println("TIPO:"+tipo);
+        return vehiculoServiceImpl.buscarVehiculos(tipo, marca, modelo, localizacion, color, combustible, nPlazas, transmision, precioMin, precioMax);
+    }
 	
 	/*@GetMapping("/disponibles")
 	public ResponseEntity<List<Vehiculo>> getVehiculoDisponibles(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {

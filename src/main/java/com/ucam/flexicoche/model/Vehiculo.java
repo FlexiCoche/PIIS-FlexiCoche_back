@@ -44,8 +44,11 @@ public class Vehiculo {
 	@Column(name = "disponibilidad")
 	private int disponibilidad;
 	
-	@Column(name = "nombre")
-	private String nombre;
+	@Column(name = "marca")
+	private String marca;
+	
+	@Column(name = "modelo")
+	private String modelo;
 	
 	@Column(name = "n_plazas")
 	private Long nPlazas;
@@ -53,7 +56,10 @@ public class Vehiculo {
 	@Column(name = "transmision")
 	private String transmision;
 	
-	@OneToOne(mappedBy = "vehiculo", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@Column(name = "localizacion")
+	private String localizacion;
+	
+	@OneToOne(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
 	//@JoinColumn(name = "id_vehiculo", referencedColumnName = "id")
 	private ImagenVehiculo imagen;
 	
