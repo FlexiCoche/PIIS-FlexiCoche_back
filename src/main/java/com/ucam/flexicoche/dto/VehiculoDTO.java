@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 @Data
-public class VehiculoDTO {
+public abstract class VehiculoDTO {
 	private Long id;
 	private String matricula;
 	private String combustible;
@@ -16,7 +16,9 @@ public class VehiculoDTO {
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private Date anioMatricula;
 	private int disponibilidad;
-	private String nombre;
+	private String marca;
+	private String modelo;
 	private Long nPlazas;
 	private String transmision;
+	private String localizacion;
 }
