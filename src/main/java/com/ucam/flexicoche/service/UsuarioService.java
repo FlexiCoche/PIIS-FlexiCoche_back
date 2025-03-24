@@ -8,4 +8,6 @@ public interface UsuarioService {
 	Usuario findByCorreo(String correo);
 	
 	Usuario addUser(UsuarioDTO usuarioDto);
+	
+	UsuarioDTO recuperarDatos(String correo);
 }

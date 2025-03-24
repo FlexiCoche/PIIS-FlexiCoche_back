@@ -1,12 +1,15 @@
 package com.ucam.flexicoche.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ucam.flexicoche.model.Usuario;
+import com.ucam.flexicoche.dto.UsuarioDTO;
 import com.ucam.flexicoche.service.UsuarioService;
 
 @RestController
@@ -16,10 +19,24 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@GetMapping("/{correo}")
-	public Usuario getUsuariosByNombre(
-			@PathVariable String correo) {
-		return usuarioService.findByCorreo(correo);
+	@GetMapping("/datos")
+	public ResponseEntity<UsuarioDTO> getUsuariosByNombre() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+
+		UsuarioDTO datos = usuarioService.recuperarDatos(correo);
+
+		if (datos != null) {
+			return ResponseEntity.ok(datos);
+		}
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
 	}
 
 }
