@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ucam.flexicoche.dto.UsuarioDTO;
+import com.ucam.flexicoche.mapper.FlexiCocheMapper;
 import com.ucam.flexicoche.model.Usuario;
 import com.ucam.flexicoche.repository.UsuarioRepository;
 import com.ucam.flexicoche.service.UsuarioService;
@@ -17,12 +18,14 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 
+	@Autowired
+	private FlexiCocheMapper mapper;
+
 	@Override
 	public Usuario findByCorreo(String correo) {
 		Optional<Usuario> usuario = usuarioRepository.findByCorreo(correo);
-		if (usuario.isPresent())
-			return usuario.get();
-		return null;
+		return usuario.get();
+
 	}
 
 	@Override
@@ -40,5 +43,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 		usuario.setRol(0);
 
 		return usuarioRepository.save(usuario);
+	}
+
+	@Override
+	public UsuarioDTO recuperarDatos(String correo) {
+		Optional<Usuario> usuario = usuarioRepository.findByCorreo(correo);
+		if (usuario.isPresent())
+			return mapper.toUsuarioDto(usuario.get());
+		return null;
 	}
 }

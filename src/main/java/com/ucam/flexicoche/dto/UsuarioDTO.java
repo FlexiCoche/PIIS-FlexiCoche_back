@@ -10,7 +10,6 @@ import lombok.Data;
 @Data
 public class UsuarioDTO {
 	private String correo;
-	private String password;
 	private String nombre;
 	private String apellidos;
 	private Long telefono;
