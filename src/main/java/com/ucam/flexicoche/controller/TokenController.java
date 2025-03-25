@@ -64,7 +64,6 @@ public class TokenController {
 	@PostMapping("/register")
 	public ResponseEntity<?> saveUser(@RequestBody UsuarioDTO usuario) throws Exception {
 		
-		//TODO validar que no exista ya el usuario
 		if (usuarioService.findByCorreo(usuario.getCorreo()) != null) {
 			return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
 		}
