@@ -28,7 +28,10 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Override
 	public Usuario findByCorreo(String correo) {
 		Optional<Usuario> usuario = usuarioRepository.findByCorreo(correo);
-		return usuario.get();
+		if (usuario.isPresent()) {
+			return usuario.get();
+		}
+		return null;
 
 	}
 
