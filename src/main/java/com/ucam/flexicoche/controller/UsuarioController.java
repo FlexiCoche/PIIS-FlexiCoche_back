@@ -6,10 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ucam.flexicoche.dto.UsuarioDTO;
+import com.ucam.flexicoche.dto.UsuarioModDTO;
 import com.ucam.flexicoche.service.UsuarioService;
 
 @RestController
@@ -37,6 +40,22 @@ public class UsuarioController {
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
+	}
+
+	@PostMapping
+	public ResponseEntity<?> actualizarDatosUsuario(@RequestBody UsuarioModDTO usuario) throws Exception {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+
+		usuarioService.actualizarUsuario(correo, usuario);
+
+		return ResponseEntity.ok().build();
 	}
 
 }
