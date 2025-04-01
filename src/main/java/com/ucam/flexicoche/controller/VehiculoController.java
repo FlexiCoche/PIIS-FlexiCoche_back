@@ -1,8 +1,12 @@
 package com.ucam.flexicoche.controller;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,15 +55,13 @@ public class VehiculoController {
             							  @RequestParam(required = false) Long nPlazas,
               							  @RequestParam(required = false) String transmision,
             							  @RequestParam(required = false) Long precioMin,
-            							  @RequestParam(required = false) Long precioMax) {
-        System.out.println("TIPO:"+tipo);
-        return vehiculoServiceImpl.buscarVehiculos(tipo, marca, modelo, localizacion, color, combustible, nPlazas, transmision, precioMin, precioMax);
+            							  @RequestParam(required = false) Long precioMax,
+            							  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            							  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+		
+        return vehiculoServiceImpl.buscarVehiculos(tipo, marca, modelo, localizacion, color, combustible, nPlazas, transmision, precioMin, precioMax, fechaInicio, fechaFin);
     }
 	
-	/*@GetMapping("/disponibles")
-	public ResponseEntity<List<Vehiculo>> getVehiculoDisponibles(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
-		return ResponseEntity.ok(vehiculoServiceImpl.findVehiculoByDisponibilidad(fecha));
-	}*/
 		
 	@PostMapping("/add")
 	public ResponseEntity<Vehiculo> setVehiculo(@RequestBody Vehiculo vehiculo) {

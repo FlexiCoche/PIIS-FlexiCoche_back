@@ -4,29 +4,29 @@ import org.springframework.data.jpa.domain.Specification;
 
 import com.ucam.flexicoche.model.Vehiculo;
 import com.ucam.flexicoche.model.Coche;
+import com.ucam.flexicoche.model.Estado;
 import com.ucam.flexicoche.model.Furgoneta;
 import com.ucam.flexicoche.model.Moto;
 import com.ucam.flexicoche.model.Camion;
+import com.ucam.flexicoche.model.Alquiler;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import javax.persistence.criteria.*;
 
 public class VehiculoSpecification {
 	
   public static Specification<Vehiculo> filtrar(String tipo, String marca, String modelo, String localizacion, String color, String combustible, Long nPlazas, 
-		  										String transmision, Long precioMin, Long precioMax) {
+		  										String transmision, Long precioMin, Long precioMax, LocalDate fechaInicio, LocalDate fechaFin) {
         return (Root<Vehiculo> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            Join<Vehiculo, Alquiler> alquilerJoin = root.join("alquileres", JoinType.LEFT);  // "alquileres" es el nombre del atributo en Vehiculo
+
             Predicate predicate = cb.conjunction();
 
             // Filtrar por la subclase específica (Coche, Moto, Camion, Furgoneta)
             if (tipo != null && !tipo.isEmpty()) {
                 predicate = cb.and(predicate, cb.equal(root.type(), getTipoClase(tipo)));
-                /*
-                 *  Class<? extends Vehiculo> tipoClase = getTipoClase(tipo);
-            	    if (tipoClase != null) {
-            	        predicate = cb.and(predicate, cb.equal(root.get("dtype"), tipoClase.getSimpleName()));
-            	    } 
-                 * 
-                 * */
             }
 
             if (marca != null && !marca.isEmpty()) {
@@ -56,7 +56,32 @@ public class VehiculoSpecification {
             if (precioMax != null) {
                 predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("precioDia"), precioMax));
             }
+            if (fechaInicio != null && fechaFin != null) {
+                LocalDate fechaInicioAjustada = fechaInicio.plusDays(1); 
+                LocalDate fechaFinAjustada = fechaFin.plusDays(1);      
+            	
+            	Timestamp fechaInicioTimestamp = Timestamp.valueOf(fechaInicioAjustada.atStartOfDay());
+                Timestamp fechaFinTimestamp = Timestamp.valueOf(fechaFinAjustada.atStartOfDay());
 
+                Predicate alquilerDisponible = cb.or(
+	        		cb.isNull(alquilerJoin.get("estado")),
+	                cb.and(
+	            		cb.or(
+	                        cb.lessThanOrEqualTo(alquilerJoin.get("fechaFin"), fechaInicioTimestamp),  
+	                        cb.greaterThanOrEqualTo(alquilerJoin.get("fechaInicio"), fechaFinTimestamp)
+	                        ),
+	                    cb.or(
+	                		cb.equal(alquilerJoin.get("estado"), Estado.DEVUELTO),
+	                		cb.equal(alquilerJoin.get("estado"), Estado.DENEGADO)
+	                		)
+	                )			          			      
+                );
+                
+                predicate = cb.and(predicate, alquilerDisponible);
+            }
+
+           
+            
             return predicate;
         };
     }
