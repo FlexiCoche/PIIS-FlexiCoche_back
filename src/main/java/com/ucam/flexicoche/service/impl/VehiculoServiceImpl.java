@@ -1,5 +1,7 @@
 package com.ucam.flexicoche.service.impl;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +41,9 @@ public class VehiculoServiceImpl implements VehiculoService{
 	}
 	
 	 public List<Vehiculo> buscarVehiculos(String tipo, String marca, String modelo, String localizacion, String color, String combustible, Long nPlazas, 
-			 								String transmision, Long precioMin, Long precioMax) {
-	    return vehiculoRepository.findAll(VehiculoSpecification.filtrar(tipo, marca, modelo, localizacion, color, combustible, nPlazas, transmision, precioMin, precioMax));
+			 								String transmision, Long precioMin, Long precioMax, LocalDate fechaInicio, LocalDate fechaFin) {
+	    return vehiculoRepository.findAll(VehiculoSpecification.filtrar(tipo, marca, modelo, localizacion, color, combustible, nPlazas, 
+	    																transmision, precioMin, precioMax,fechaInicio,fechaFin));
 	 }
 	
 	/*@Override
