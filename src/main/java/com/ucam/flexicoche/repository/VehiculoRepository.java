@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.ucam.flexicoche.model.Vehiculo;
 
 @Repository
-public interface VehiculoRepository extends JpaRepository<Vehiculo, String>{
+public interface VehiculoRepository extends JpaRepository<Vehiculo, Long>{
 	
 	Vehiculo findByMarca(@Param("marca") String marca);
 	

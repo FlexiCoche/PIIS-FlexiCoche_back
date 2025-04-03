@@ -43,7 +43,7 @@ public class UsuarioController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> actualizarDatosUsuario(@RequestBody UsuarioModDTO usuario) throws Exception {
+	public ResponseEntity<?> actualizarDatosUsuario(@RequestBody UsuarioModDTO usuario) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -53,7 +53,11 @@ public class UsuarioController {
 
 		String correo = authentication.getName();
 
-		usuarioService.actualizarUsuario(correo, usuario);
+		try {
+			usuarioService.actualizarUsuario(correo, usuario);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
 
 		return ResponseEntity.ok().build();
 	}

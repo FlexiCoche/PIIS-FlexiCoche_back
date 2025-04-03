@@ -22,5 +22,4 @@ public abstract class VehiculoDTO {
 	private Long nPlazas;
 	private String transmision;
 	private String localizacion;
-    private List<AlquilerDTO> alquileres;
 }
