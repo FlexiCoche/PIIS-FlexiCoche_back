@@ -3,16 +3,7 @@ package com.ucam.flexicoche.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -58,10 +49,12 @@ public class Vehiculo {
 	
 	@Column(name = "transmision")
 	private String transmision;
-	
-	@Column(name = "localizacion")
-	private String localizacion;
-	
+
+	@ManyToOne
+	@JoinColumn(name = "localizacion", referencedColumnName = "localizacion")
+	private Localizacion localizacion;
+
+
 	@OneToOne(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ImagenVehiculo imagen;
 	

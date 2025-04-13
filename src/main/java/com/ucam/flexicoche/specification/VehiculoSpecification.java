@@ -1,94 +1,106 @@
 package com.ucam.flexicoche.specification;
 
 import org.springframework.data.jpa.domain.Specification;
+import com.ucam.flexicoche.model.*;
 
-import com.ucam.flexicoche.model.Vehiculo;
-import com.ucam.flexicoche.model.Coche;
-import com.ucam.flexicoche.model.Estado;
-import com.ucam.flexicoche.model.Furgoneta;
-import com.ucam.flexicoche.model.Moto;
-import com.ucam.flexicoche.model.Camion;
-import com.ucam.flexicoche.model.Alquiler;
-
+import javax.persistence.criteria.*;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
-import javax.persistence.criteria.*;
-
 public class VehiculoSpecification {
-	
-  public static Specification<Vehiculo> filtrar(String tipo, String marca, String modelo, String localizacion, String color, String combustible, Long nPlazas, 
-		  										String transmision, Long precioMin, Long precioMax, LocalDate fechaInicio, LocalDate fechaFin) {
+
+    public static Specification<Vehiculo> filtrar(String tipo, String marca, String modelo, String localizacion, String color,
+                                                  String combustible, Long nPlazas, String transmision,
+                                                  Long precioMin, Long precioMax,
+                                                  LocalDate fechaInicio, LocalDate fechaFin) {
         return (Root<Vehiculo> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
-            Join<Vehiculo, Alquiler> alquilerJoin = root.join("alquileres", JoinType.LEFT);  // "alquileres" es el nombre del atributo en Vehiculo
+
+            Join<Vehiculo, Alquiler> alquilerJoin = root.join("alquileres", JoinType.LEFT);
 
             Predicate predicate = cb.conjunction();
 
-            // Filtrar por la subclase específica (Coche, Moto, Camion, Furgoneta)
-            if (tipo != null && !tipo.isEmpty()) {
+            if (isValid(tipo)) {
                 predicate = cb.and(predicate, cb.equal(root.type(), getTipoClase(tipo)));
             }
 
-            if (marca != null && !marca.isEmpty()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("marca")), "%" + marca.toLowerCase() + "%"));
+            if (isValid(marca)) {
+                String cleaned = marca.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("marca")), "%" + cleaned + "%"));
             }
-            if (modelo != null && !modelo.isEmpty()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("modelo")), "%" + modelo.toLowerCase() + "%"));
+
+            if (isValid(modelo)) {
+                String cleaned = modelo.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("modelo")), "%" + cleaned + "%"));
             }
-            if (localizacion != null && !localizacion.isEmpty()) {
-                predicate = cb.and(predicate, cb.equal(cb.lower(root.get("localizacion")), localizacion.toLowerCase()));
+
+            if (isValid(localizacion)) {
+                String cleaned = localizacion.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("localizacion").get("descripcion")), "%" + cleaned + "%"));
+
+
             }
-            if (color != null && !color.isEmpty()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("color")), "%" + color.toLowerCase() + "%"));
+
+            if (isValid(color)) {
+                String cleaned = color.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("color")), "%" + cleaned + "%"));
             }
-            if (combustible != null && !combustible.isEmpty()) {
-                predicate = cb.and(predicate, cb.like(cb.lower(root.get("combustible")), "%" + combustible.toLowerCase() + "%"));
+
+            if (isValid(combustible)) {
+                String cleaned = combustible.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("combustible")), "%" + cleaned + "%"));
             }
+
             if (nPlazas != null) {
                 predicate = cb.and(predicate, cb.equal(root.get("nPlazas"), nPlazas));
             }
-            if (transmision != null && !transmision.isEmpty()) {
-                predicate = cb.and(predicate, cb.equal(cb.lower(root.get("transmision")), transmision.toLowerCase()));
+
+            if (isValid(transmision)) {
+                String cleaned = transmision.trim().toLowerCase();
+                predicate = cb.and(predicate, cb.equal(cb.lower(root.get("transmision")), cleaned));
             }
+
             if (precioMin != null) {
                 predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("precioDia"), precioMin));
             }
+
             if (precioMax != null) {
                 predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("precioDia"), precioMax));
             }
+
             if (fechaInicio != null && fechaFin != null) {
-                LocalDate fechaInicioAjustada = fechaInicio.plusDays(1); 
-                LocalDate fechaFinAjustada = fechaFin.plusDays(1);      
-            	
-            	Timestamp fechaInicioTimestamp = Timestamp.valueOf(fechaInicioAjustada.atStartOfDay());
+                LocalDate fechaInicioAjustada = fechaInicio.plusDays(1);
+                LocalDate fechaFinAjustada = fechaFin.plusDays(1);
+
+                Timestamp fechaInicioTimestamp = Timestamp.valueOf(fechaInicioAjustada.atStartOfDay());
                 Timestamp fechaFinTimestamp = Timestamp.valueOf(fechaFinAjustada.atStartOfDay());
 
                 Predicate alquilerDisponible = cb.or(
-	        		cb.isNull(alquilerJoin.get("estado")),
-	                cb.and(
-	            		cb.or(
-	                        cb.lessThanOrEqualTo(alquilerJoin.get("fechaFin"), fechaInicioTimestamp),  
-	                        cb.greaterThanOrEqualTo(alquilerJoin.get("fechaInicio"), fechaFinTimestamp)
-	                        ),
-	                    cb.or(
-	                		cb.equal(alquilerJoin.get("estado"), Estado.DEVUELTO),
-	                		cb.equal(alquilerJoin.get("estado"), Estado.DENEGADO)
-	                		)
-	                )			          			      
+                        cb.isNull(alquilerJoin.get("estado")),
+                        cb.and(
+                                cb.or(
+                                        cb.lessThanOrEqualTo(alquilerJoin.get("fechaFin"), fechaInicioTimestamp),
+                                        cb.greaterThanOrEqualTo(alquilerJoin.get("fechaInicio"), fechaFinTimestamp)
+                                ),
+                                cb.or(
+                                        cb.equal(alquilerJoin.get("estado"), Estado.DEVUELTO),
+                                        cb.equal(alquilerJoin.get("estado"), Estado.DENEGADO)
+                                )
+                        )
                 );
-                
+
                 predicate = cb.and(predicate, alquilerDisponible);
             }
 
-           
-            
             return predicate;
         };
     }
 
-    // Método para mapear el tipo de vehículo con su clase
+    private static boolean isValid(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+
     private static Class<? extends Vehiculo> getTipoClase(String tipo) {
-        return switch (tipo.toLowerCase()) {
+        return switch (tipo.trim().toLowerCase()) {
             case "coche" -> Coche.class;
             case "moto" -> Moto.class;
             case "camion" -> Camion.class;
