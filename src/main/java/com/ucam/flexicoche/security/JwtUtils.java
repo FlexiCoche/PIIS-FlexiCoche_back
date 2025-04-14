@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
+import com.ucam.flexicoche.model.Usuario;
+import com.ucam.flexicoche.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +39,22 @@ public class JwtUtils {
 	@Autowired
 	private JwtDecoder jwtDecoder;
 
+	@Autowired
+	private UsuarioRepository usuarioRepository;
+
 	public String generateJwtToken(Authentication authentication) {
 		Instant now = Instant.now();
+
+		String correo = authentication.getName();
 
 		String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.joining(" "));
 
+		Usuario usuario = usuarioRepository.findByCorreo(correo)
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
 		JwtClaimsSet claims = JwtClaimsSet.builder().issuer("self").issuedAt(now)
-				.expiresAt(now.plus(1, ChronoUnit.HOURS)).subject(authentication.getName()).claim("scope", scope)
+				.expiresAt(now.plus(1, ChronoUnit.HOURS)).subject(authentication.getName()).claim("username", usuario.getNombre()).claim("scope", scope)
 				.build();
 		return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 	}
