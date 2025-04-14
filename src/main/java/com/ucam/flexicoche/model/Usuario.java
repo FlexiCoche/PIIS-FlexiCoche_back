@@ -1,6 +1,7 @@
 package com.ucam.flexicoche.model;
 
 import java.sql.Blob;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Usuario {
 	private String correo;
 
 	@Column(name = "n_documento")
-	private Long nDocumento;
+	private String nDocumento;
 
 	@Column(name = "nombre")
 	private String nombre;
@@ -40,7 +41,7 @@ public class Usuario {
 	private Long telefono;
 
 	@Column(name = "fec_nac")
-	private Date fechaNacimiento;
+	private LocalDate fechaNacimiento;
 
 	@Column(name = "rol")
 	private int rol;
