@@ -1,6 +1,7 @@
 package com.ucam.flexicoche.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -21,4 +22,5 @@ public abstract class VehiculoDTO {
 	private Long nPlazas;
 	private String transmision;
 	private String localizacion;
+	private String imagenUrl;
 }

@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -27,11 +28,12 @@ public class Alquiler {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne//(fetch = FetchType.EAGER)
 	@JoinColumn(name = "id_vehiculo")
+	@JsonBackReference
 	private Vehiculo vehiculo;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne//(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_usuario")
 	private Usuario usuario;
 
