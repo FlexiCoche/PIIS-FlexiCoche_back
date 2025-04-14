@@ -1,152 +1,163 @@
 package com.ucam.flexicoche.service.impl;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ucam.flexicoche.model.Camion;
-import com.ucam.flexicoche.model.Coche;
-import com.ucam.flexicoche.model.ImagenVehiculo;
-import com.ucam.flexicoche.model.Moto;
-import com.ucam.flexicoche.model.Usuario;
-import com.ucam.flexicoche.model.Vehiculo;
+import com.ucam.flexicoche.dto.VehiculoDTO;
+import com.ucam.flexicoche.mapper.FlexiCocheMapper;
+import com.ucam.flexicoche.model.*;
 import com.ucam.flexicoche.repository.VehiculoRepository;
 import com.ucam.flexicoche.service.VehiculoService;
 import com.ucam.flexicoche.specification.VehiculoSpecification;
 
-
-
 @Service
-public class VehiculoServiceImpl implements VehiculoService{
+public class VehiculoServiceImpl implements VehiculoService {
 
 	@Autowired
 	private VehiculoRepository vehiculoRepository;
-	
-	@Override
-	public List<Vehiculo> getVehiculos() {
-		return vehiculoRepository.findAll(); 
+
+	@Autowired
+	private FlexiCocheMapper flexiCocheMapper;
+
+	// 🔍 Búsqueda múltiple con Specification
+	public List<Vehiculo> buscarVehiculos(String tipo, String marca, String modelo, String localizacion, String color,
+										  String combustible, Long nPlazas, String transmision,
+										  Long precioMin, Long precioMax,
+										  LocalDate fechaInicio, LocalDate fechaFin) {
+		return vehiculoRepository.findAll(VehiculoSpecification.filtrar(
+				tipo, marca, modelo, localizacion, color, combustible,
+				nPlazas, transmision, precioMin, precioMax, fechaInicio, fechaFin
+		));
 	}
 
+	// 🔍 Versión DTO del buscador
+	public List<VehiculoDTO> buscarVehiculosDTO(String tipo, String marca, String modelo, String localizacion, String color,
+												String combustible, Long nPlazas, String transmision,
+												Long precioMin, Long precioMax,
+												LocalDate fechaInicio, LocalDate fechaFin) {
+		List<Vehiculo> vehiculos = buscarVehiculos(tipo, marca, modelo, localizacion, color,
+				combustible, nPlazas, transmision, precioMin, precioMax, fechaInicio, fechaFin);
+		return vehiculos.stream()
+				.map(flexiCocheMapper::toVehiculoDto)
+				.collect(Collectors.toList());
+	}
+
+	// 📍 Localizaciones únicas
+	public List<String> getLocalizaciones() {
+		return vehiculoRepository.findAllLocalizacionesUnicas();
+	}
+
+	// 📌 Obtener todos los vehículos
+	@Override
+	public List<Vehiculo> getVehiculos() {
+		return vehiculoRepository.findAll();
+	}
+
+	// 🔍 Buscar por marca
 	@Override
 	public Vehiculo findVehiculoByMarca(String marca) {
 		return vehiculoRepository.findByMarca(marca);
 	}
-	
+
+	// 🔍 Buscar por matrícula
 	@Override
 	public Vehiculo findVehiculoByMatricula(String matricula) {
 		return vehiculoRepository.findByMatricula(matricula);
 	}
-	
-	 public List<Vehiculo> buscarVehiculos(String tipo, String marca, String modelo, String localizacion, String color, String combustible, Long nPlazas, 
-			 								String transmision, Long precioMin, Long precioMax, LocalDate fechaInicio, LocalDate fechaFin) {
-	    return vehiculoRepository.findAll(VehiculoSpecification.filtrar(tipo, marca, modelo, localizacion, color, combustible, nPlazas, 
-	    																transmision, precioMin, precioMax,fechaInicio,fechaFin));
-	 }
-	
-	/*@Override
-	public List<Vehiculo> findVehiculoByDisponibilidad(LocalDate fecha) {
-		return vehiculoRepository.findByDisponibilidad(fecha);
-	}*/
-	
+
+	// ➕ Crear nuevo vehículo
 	@Override
 	public Vehiculo setVehiculo(Vehiculo vehiculo) {
 		return vehiculoRepository.save(vehiculo);
 	}
 
+	// 🖊️ Actualizar color y precio
 	@Override
-	public Vehiculo updateVehiculo(String marca, String color, Float precio) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
-		
-		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
+	public Vehiculo updateVehiculo(String matricula, String color, Float precio) {
+		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+		if (vehiculo == null) {
+			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
 		}
-		
-		vehiculoSelect.setColor(color);
-		vehiculoSelect.setPrecioDia(precio);
-		
-		return vehiculoRepository.save(vehiculoSelect);
+
+		vehiculo.setColor(color);
+		vehiculo.setPrecioDia(precio);
+		return vehiculoRepository.save(vehiculo);
 	}
 
+	// 🟢 Cambiar disponibilidad
 	@Override
-	public Vehiculo updateStateVehiculo(String marca, int disponibilidad) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
-		
-		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
+	public Vehiculo updateStateVehiculo(String matricula, int disponibilidad) {
+		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+		if (vehiculo == null) {
+			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
 		}
-		
-		vehiculoSelect.setDisponibilidad(disponibilidad);
-		
-		return vehiculoRepository.save(vehiculoSelect);
+
+		vehiculo.setDisponibilidad(disponibilidad);
+		return vehiculoRepository.save(vehiculo);
 	}
 
+	// 🗑️ Eliminar vehículo
 	@Override
 	public void deleteVehiculo(String matricula) {
 		vehiculoRepository.deleteByMatricula(matricula);
 	}
-	
 
-
-	@Override
-	public Coche updateVehiculoCoche(String marca, String carroceria, int puertas, int potencia) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
-		
-		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
-		}
-		
-		if (vehiculoSelect instanceof Coche) {
-			Coche coche = (Coche) vehiculoSelect;
-			coche.setCarroceria(carroceria);
-			coche.setPuertas(puertas);
-			coche.setPotencia(potencia);
-			
-			return vehiculoRepository.save(coche);
-		} else {
-			throw new RuntimeException("Vehículo con matrícula: " + marca + " no es un coche. Prueba con otra matrícula.");
-		}
-		
-	}
-
-	@Override
-	public Coche updateVehiculoCochePotencia(String marca, int potencia) {
-		Vehiculo vehiculoSelect = vehiculoRepository.findByMarca(marca);
-		
-		if (vehiculoSelect == null) {
-			throw new RuntimeException("Vehículo: " + marca + " no encontrado. Prueba con otra matrícula.");
-		}
-		
-		if (vehiculoSelect instanceof Coche) {
-			Coche coche = (Coche) vehiculoSelect;
-			coche.setPotencia(potencia);
-			
-			return vehiculoRepository.save(coche);
-		} else {
-			throw new RuntimeException("Vehículo con matrícula: " + marca + " no es un coche. Prueba con otra matrícula.");
-		}
-	}
-
+	// 🖼️ Actualizar imagen desde URL
 	@Override
 	public Vehiculo updateVehiculoImagenDesdeURL(String matricula, String imageUrl) {
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+		if (vehiculo == null) {
+			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+		}
 
-	    if (vehiculo == null) {
-	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
-	    }
+		ImagenVehiculo imagenVehiculo = vehiculo.getImagen();
+		if (imagenVehiculo == null) {
+			imagenVehiculo = new ImagenVehiculo();
+			imagenVehiculo.setVehiculo(vehiculo);
+			vehiculo.setImagen(imagenVehiculo);
+		}
 
-        ImagenVehiculo imagenVehiculo = vehiculo.getImagen();
-        if (imagenVehiculo == null) {
-            imagenVehiculo = new ImagenVehiculo();
-            imagenVehiculo.setVehiculo(vehiculo);
-            vehiculo.setImagen(imagenVehiculo);
-        }
-
-        imagenVehiculo.setImagen(imageUrl);
-
-        return vehiculoRepository.save(vehiculo);
+		imagenVehiculo.setImagen(imageUrl);
+		return vehiculoRepository.save(vehiculo);
 	}
 
+	// ⚙️ Actualizar campos de coche
+	@Override
+	public Coche updateVehiculoCoche(String matricula, String carroceria, int puertas, int potencia) {
+		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+		if (vehiculo == null) {
+			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+		}
+
+		if (!(vehiculo instanceof Coche)) {
+			throw new RuntimeException("El vehículo con matrícula " + matricula + " no es un coche.");
+		}
+
+		Coche coche = (Coche) vehiculo;
+		coche.setCarroceria(carroceria);
+		coche.setPuertas(puertas);
+		coche.setPotencia(potencia);
+		return vehiculoRepository.save(coche);
+	}
+
+	// ⚙️ Actualizar solo la potencia del coche
+	@Override
+	public Coche updateVehiculoCochePotencia(String matricula, int potencia) {
+		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+		if (vehiculo == null) {
+			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+		}
+
+		if (!(vehiculo instanceof Coche)) {
+			throw new RuntimeException("El vehículo con matrícula " + matricula + " no es un coche.");
+		}
+
+		Coche coche = (Coche) vehiculo;
+		coche.setPotencia(potencia);
+		return vehiculoRepository.save(coche);
+	}
 }

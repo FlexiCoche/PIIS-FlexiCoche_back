@@ -3,24 +3,13 @@ package com.ucam.flexicoche.mapper;
 import java.util.List;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
-import com.ucam.flexicoche.dto.AlquilerDTO;
-import com.ucam.flexicoche.dto.CamionDTO;
-import com.ucam.flexicoche.dto.CocheDTO;
-import com.ucam.flexicoche.dto.FurgonetaDTO;
-import com.ucam.flexicoche.dto.MotoDTO;
-import com.ucam.flexicoche.dto.UsuarioDTO;
-import com.ucam.flexicoche.dto.VehiculoDTO;
-import com.ucam.flexicoche.model.Alquiler;
-import com.ucam.flexicoche.model.Camion;
-import com.ucam.flexicoche.model.Coche;
-import com.ucam.flexicoche.model.Estado;
-import com.ucam.flexicoche.model.Furgoneta;
-import com.ucam.flexicoche.model.Moto;
-import com.ucam.flexicoche.model.Usuario;
-import com.ucam.flexicoche.model.Vehiculo;
+import com.ucam.flexicoche.dto.*;
+import com.ucam.flexicoche.model.*;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface FlexiCocheMapper {
 
 	default VehiculoDTO toVehiculoDto(Vehiculo vehiculo) {
@@ -36,16 +25,31 @@ public interface FlexiCocheMapper {
 		if (vehiculo instanceof Moto) {
 			return toMotoDto((Moto) vehiculo);
 		}
-
 		return null;
 	}
 
+	@Mappings({
+			@Mapping(target = "imagenUrl", expression = "java(mapImagen(camion.getImagen()))"),
+			@Mapping(target = "localizacion", expression = "java(map(camion.getLocalizacion()))")
+	})
 	CamionDTO toCamionDto(Camion camion);
 
+	@Mappings({
+			@Mapping(target = "imagenUrl", expression = "java(mapImagen(coche.getImagen()))"),
+			@Mapping(target = "localizacion", expression = "java(map(coche.getLocalizacion()))")
+	})
 	CocheDTO toCocheDto(Coche coche);
 
+	@Mappings({
+			@Mapping(target = "imagenUrl", expression = "java(mapImagen(furgoneta.getImagen()))"),
+			@Mapping(target = "localizacion", expression = "java(map(furgoneta.getLocalizacion()))")
+	})
 	FurgonetaDTO toFurgonetaDto(Furgoneta furgoneta);
 
+	@Mappings({
+			@Mapping(target = "imagenUrl", expression = "java(mapImagen(moto.getImagen()))"),
+			@Mapping(target = "localizacion", expression = "java(map(moto.getLocalizacion()))")
+	})
 	MotoDTO toMotoDto(Moto moto);
 
 	AlquilerDTO toAlquilerDto(Alquiler alquiler);
@@ -54,8 +58,21 @@ public interface FlexiCocheMapper {
 
 	UsuarioDTO toUsuarioDto(Usuario usuario);
 
+	// Para estado
 	default String toEstado(Estado estado) {
-		return estado.getNombre();
+		return estado != null ? estado.getNombre() : null;
+	}
+
+	// Localización → descripción
+	default String map(Localizacion localizacion) {
+		return localizacion != null ? localizacion.getDescripcion() : null;
+	}
+
+	// Imagen → URL
+	default String mapImagen(ImagenVehiculo imagen) {
+		return imagen != null && imagen.getImagen() != null
+				? "/assets/images/" + imagen.getImagen()
+				: "/assets/images/default.png";
 	}
 
 }

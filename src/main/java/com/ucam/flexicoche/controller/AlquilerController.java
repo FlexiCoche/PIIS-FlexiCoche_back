@@ -1,6 +1,7 @@
 package com.ucam.flexicoche.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.websocket.server.PathParam;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import com.ucam.flexicoche.dto.AlquilerDTO;
 import com.ucam.flexicoche.dto.RegistrarAlquilerDTO;
@@ -76,5 +78,25 @@ public class AlquilerController {
 		}
 
 		return ResponseEntity.ok().build();
+	}
+
+	@PatchMapping("/{id}/pagar")
+	public ResponseEntity<Map<String, String>> pagarAlquiler(@PathVariable Long id) {
+		try {
+			alquilerService.pagarAlquiler(id);
+			return ResponseEntity.ok(Map.of("estado", "procesando"));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> anularAlquiler(@PathVariable Long id) {
+		try {
+			alquilerService.anularAlquiler(id);
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 }

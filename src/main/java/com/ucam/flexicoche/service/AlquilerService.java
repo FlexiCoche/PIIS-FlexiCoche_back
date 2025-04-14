@@ -12,4 +12,8 @@ public interface AlquilerService {
 	void registrarAlquiler(String correo, RegistrarAlquilerDTO alquiler) throws Exception;
 	
 	void cancelarAlquiler(String correo, Long idAlquiler) throws Exception;
+
+	void pagarAlquiler(Long id);
+	
+	void anularAlquiler(Long id);
 }
