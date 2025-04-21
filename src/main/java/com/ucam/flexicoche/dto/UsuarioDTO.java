@@ -1,6 +1,7 @@
 package com.ucam.flexicoche.dto;
 
 import java.sql.Blob;
+import java.time.LocalDate;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +16,7 @@ public class UsuarioDTO {
 	private String apellidos;
 	private Long telefono;
 	@JsonFormat(pattern = "dd/MM/yyyy")
-	private Date fechaNacimiento;
+	private LocalDate fechaNacimiento;
 	private Blob foto;
-	private Long nDocumento;
+	private String nDocumento;
 }

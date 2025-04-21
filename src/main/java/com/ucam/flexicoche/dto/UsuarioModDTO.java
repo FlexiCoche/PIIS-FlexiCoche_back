@@ -1,5 +1,6 @@
 package com.ucam.flexicoche.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -12,6 +13,6 @@ public class UsuarioModDTO {
 	private String apellidos;
 	private Long telefono;
 	@JsonFormat(pattern = "dd/MM/yyyy")
-	private Date fechaNacimiento;
-	private Long nDocumento;
+	private LocalDate fechaNacimiento;
+	private String nDocumento;
 }
