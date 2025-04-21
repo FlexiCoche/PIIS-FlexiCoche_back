@@ -64,7 +64,7 @@ public class AlquilerController {
 	}
 	
 	@PutMapping("/{idAlquiler}")
-	public ResponseEntity<?> cancelarAlquiler(@PathParam(value = "idAlquiler") Long idAlquiler) {
+	public ResponseEntity<?> cancelarAlquiler(@PathVariable Long idAlquiler) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || authentication.getName() == null) {

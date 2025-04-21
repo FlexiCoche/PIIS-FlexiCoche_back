@@ -1,14 +1,12 @@
 package com.ucam.flexicoche.service.impl;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.ucam.flexicoche.dto.PasswordDTO;
 import com.ucam.flexicoche.dto.UsuarioDTO;
 import com.ucam.flexicoche.dto.UsuarioModDTO;
 import com.ucam.flexicoche.mapper.FlexiCocheMapper;
@@ -88,6 +86,21 @@ public class UsuarioServiceImpl implements UsuarioService {
 					|| usuario.getTelefono() != null && !usuarioMod.getTelefono().equals(usuario.getTelefono())) {
 				usuario.setTelefono(usuarioMod.getTelefono());
 			}
+
+			usuarioRepository.save(usuario);
+		} else {
+			throw new Exception("Usuario no encontrado");
+		}
+	}
+
+	@Override
+	public void actualizarPassword(String correo, PasswordDTO password) throws Exception {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+
+			BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+			usuario.setPassword(bCryptPasswordEncoder.encode(password.getNewPassword()));
 
 			usuarioRepository.save(usuario);
 		} else {
