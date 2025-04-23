@@ -71,7 +71,7 @@ public interface FlexiCocheMapper {
 	// Imagen → URL
 	default String mapImagen(ImagenVehiculo imagen) {
 		return imagen != null && imagen.getImagen() != null
-				? "/assets/images/" + imagen.getImagen()
+				? /*"/assets/images/" + */imagen.getImagen()
 				: "/assets/images/default.png";
 	}
 

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ucam.flexicoche.dto.LocalizacionDTO;
 import com.ucam.flexicoche.dto.VehiculoDTO;
 import com.ucam.flexicoche.mapper.FlexiCocheMapper;
 import com.ucam.flexicoche.model.*;
@@ -51,6 +52,11 @@ public class VehiculoServiceImpl implements VehiculoService {
 		return vehiculoRepository.findAllLocalizacionesUnicas();
 	}
 
+	// 📍 Localizaciones únicas y detalladas
+	public List<LocalizacionDTO> getLocalizacionesDetalladas() {
+		return vehiculoRepository.findAllLocalizacionesUnicasDetalladas();
+	}
+		
 	// 📌 Obtener todos los vehículos
 	@Override
 	public List<Vehiculo> getVehiculos() {

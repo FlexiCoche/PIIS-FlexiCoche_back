@@ -86,7 +86,10 @@ public class FlexicocheConfig extends WebSecurityConfigurerAdapter {
 						"/vehiculos/matricula/{matricula}", // borrarla al final
 						"/vehiculos/{matricula}/imagen", // borrarla al final
 						"/vehiculos/",// borrarla al final
-						"/vehiculos/buscar/"
+						"/vehiculos/buscar/",
+						"/vehiculos/localizaciones/detallado" //revisarlo
+						//"/templates/car-data-new.html"
+						//"/templates/index-admin.html"
 						).permitAll().anyRequest().authenticated();
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}

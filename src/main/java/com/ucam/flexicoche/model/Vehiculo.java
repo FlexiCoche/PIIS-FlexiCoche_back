@@ -18,6 +18,7 @@ import lombok.Setter;
 public class Vehiculo {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@Column(name = "matricula")
