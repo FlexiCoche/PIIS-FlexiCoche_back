@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ucam.flexicoche.dto.LocalizacionDTO;
 import com.ucam.flexicoche.model.Vehiculo;
 
 @Repository
@@ -28,5 +29,7 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
 	@EntityGraph(attributePaths = "imagen")
 	List<Vehiculo> findAll(Specification<Vehiculo> filtrar);
 
+	@Query("SELECT new com.ucam.flexicoche.dto.LocalizacionDTO(l.localizacion, l.descripcion) FROM Localizacion l WHERE l.localizacion IS NOT NULL")
+	List<LocalizacionDTO> findAllLocalizacionesUnicasDetalladas();
 
 }
