@@ -10,6 +10,10 @@ public interface AlquilerService {
 	List<AlquilerDTO> findByCorreo(String correo);
 
 	void registrarAlquiler(String correo, RegistrarAlquilerDTO alquiler) throws Exception;
+	
+	void cancelarAlquiler(String correo, Long idAlquiler) throws Exception;
+
 	void pagarAlquiler(Long id);
+	
 	void anularAlquiler(Long id);
 }

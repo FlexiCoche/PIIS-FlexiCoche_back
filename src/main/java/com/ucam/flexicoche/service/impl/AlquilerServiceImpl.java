@@ -68,10 +68,11 @@ public class AlquilerServiceImpl implements AlquilerService {
             // Validar que el usuario no tenga reservas en las mismas fechas
             List<Alquiler> alquileres = alquilerRepository.findByUsuario(correo);
             if (alquileres.stream()
-                    .anyMatch(x -> x.getFechaInicio().after(alquiler.getFechaInicio())
-                            && x.getFechaInicio().before(alquiler.getFechaFin())
-                            || x.getFechaFin().after(alquiler.getFechaInicio())
-                            && x.getFechaInicio().before(alquiler.getFechaFin()))) {
+					.anyMatch(x -> !x.getEstado().equals(Estado.DENEGADO)
+							&& ((x.getFechaInicio().after(alquiler.getFechaInicio())
+									&& x.getFechaInicio().before(alquiler.getFechaFin()))
+									|| (x.getFechaFin().after(alquiler.getFechaInicio())
+											&& x.getFechaInicio().before(alquiler.getFechaFin()))))) {
                 throw new Exception("El usuario ya tiene un alquiler en las fechas introducidas");
             }
 
@@ -139,5 +140,35 @@ public class AlquilerServiceImpl implements AlquilerService {
         alquilerRepository.deleteById(id);
     }
 
+
+	@Override
+	public void cancelarAlquiler(String correo, Long idAlquiler) throws Exception {
+		Optional<Alquiler> alquilerOpt = alquilerRepository.findById(idAlquiler);
+
+		if (!alquilerOpt.isPresent()) {
+			throw new Exception("Alquiler no encontrado");
+		}
+		Alquiler alquiler = alquilerOpt.get();
+
+		// Solo se podrán cancelar alquileres si está en a pagar o procesando
+		if (!alquiler.getEstado().equals(Estado.A_PAGAR) && !alquiler.getEstado().equals(Estado.PROCESANDO)) {
+			throw new Exception("El alquiler se encuentra en un estado que no permite cancelar");
+		}
+
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			// Solo se podrán borrar alquileres si son del usuario logado o si el usuario es
+			// administrador
+			if (alquiler.getUsuario().getCorreo().equals(correo) || usuarioOpt.get().getRoles().contains("ADMIN")) {
+				alquiler.setEstado(Estado.DENEGADO);
+				alquilerRepository.save(alquiler);
+			} else {
+				throw new Exception("El usuario no tiene permisos para borrar el alquiler seleccionado");
+			}
+		} else {
+			throw new Exception("Usuario no encontrado");
+		}
+	}
 
 }
