@@ -3,6 +3,7 @@ package com.ucam.flexicoche.service;
 import java.util.List;
 
 import com.ucam.flexicoche.dto.AlquilerDTO;
+import com.ucam.flexicoche.dto.EstadoDTO;
 import com.ucam.flexicoche.dto.RegistrarAlquilerDTO;
 
 public interface AlquilerService {
@@ -16,4 +17,6 @@ public interface AlquilerService {
 	void pagarAlquiler(Long id);
 	
 	void anularAlquiler(Long id);
+
+	void cambiarEstado(String correo, EstadoDTO estado) throws Exception;
 }
