@@ -16,6 +16,6 @@ public class UsuarioDTO2 {
 	private Long telefono;
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate fechaNacimiento;
-	private Blob foto;
+	private String foto;
 	private String nDocumento;
 }
