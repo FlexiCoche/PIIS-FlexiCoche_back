@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ucam.flexicoche.config.DriveFolderConfig;
 import com.ucam.flexicoche.dto.PasswordDTO;
 import com.ucam.flexicoche.dto.UsuarioDTO;
 import com.ucam.flexicoche.dto.UsuarioModDTO;
