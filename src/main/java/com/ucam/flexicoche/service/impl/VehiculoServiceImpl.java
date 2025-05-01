@@ -82,7 +82,7 @@ public class VehiculoServiceImpl implements VehiculoService {
 	}
 
 	// 🖊️ Actualizar color y precio
-	@Override
+	/*@Override
 	public Vehiculo updateVehiculo(String matricula, String color, Float precio) {
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		if (vehiculo == null) {
@@ -92,7 +92,40 @@ public class VehiculoServiceImpl implements VehiculoService {
 		vehiculo.setColor(color);
 		vehiculo.setPrecioDia(precio);
 		return vehiculoRepository.save(vehiculo);
+	}*/
+	
+	@Override
+	public Vehiculo updateVehiculo(String matricula, Vehiculo vehiculoActualizado) {
+	    Vehiculo existente = vehiculoRepository.findByMatricula(matricula);
+	    if (existente == null) {
+	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+	    }
+
+	    // Campos comunes
+	    existente.setColor(vehiculoActualizado.getColor());
+	    existente.setMarca(vehiculoActualizado.getMarca());
+	    existente.setModelo(vehiculoActualizado.getModelo());
+	    existente.setTransmision(vehiculoActualizado.getTransmision());
+	    existente.setCombustible(vehiculoActualizado.getCombustible());
+	    existente.setNPlazas(vehiculoActualizado.getNPlazas());
+	    existente.setPrecioDia(vehiculoActualizado.getPrecioDia());
+	    existente.setLocalizacion(vehiculoActualizado.getLocalizacion());
+	    existente.setDisponibilidad(vehiculoActualizado.getDisponibilidad());
+
+	    // Si es coche, moto, etc. puedes mapear sus campos específicos también:
+	    if (existente instanceof Coche && vehiculoActualizado instanceof Coche) {
+	        Coche cocheExistente = (Coche) existente;
+	        Coche cocheActualizado = (Coche) vehiculoActualizado;
+	        cocheExistente.setCarroceria(cocheActualizado.getCarroceria());
+	        cocheExistente.setPuertas(cocheActualizado.getPuertas());
+	        cocheExistente.setPotencia(cocheActualizado.getPotencia());
+	    }
+
+	    // Puedes añadir más bloques similares para Moto, Furgoneta, etc.
+
+	    return vehiculoRepository.save(existente);
 	}
+
 
 	// 🟢 Cambiar disponibilidad
 	@Override

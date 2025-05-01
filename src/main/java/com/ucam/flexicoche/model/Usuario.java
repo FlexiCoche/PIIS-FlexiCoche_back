@@ -47,7 +47,7 @@ public class Usuario {
 	private int rol;
 
 	@Column(name = "foto")
-	private Blob foto;
+	private String foto;
 
 	@Column(name = "passwd")
 	private String password;

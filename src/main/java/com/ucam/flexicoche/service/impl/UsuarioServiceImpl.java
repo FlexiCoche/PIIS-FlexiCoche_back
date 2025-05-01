@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ucam.flexicoche.dto.PasswordDTO;
 import com.ucam.flexicoche.dto.UsuarioDTO;
@@ -12,6 +13,7 @@ import com.ucam.flexicoche.dto.UsuarioModDTO;
 import com.ucam.flexicoche.mapper.FlexiCocheMapper;
 import com.ucam.flexicoche.model.Usuario;
 import com.ucam.flexicoche.repository.UsuarioRepository;
+import com.ucam.flexicoche.service.CloudinaryService;
 import com.ucam.flexicoche.service.UsuarioService;
 
 @Service
@@ -23,6 +25,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 	@Autowired
 	private FlexiCocheMapper mapper;
 
+	@Autowired
+	private CloudinaryService googleDriveService;
+	
 	@Override
 	public Usuario findByCorreo(String correo) {
 		Optional<Usuario> usuario = usuarioRepository.findByCorreo(correo);
@@ -107,4 +112,16 @@ public class UsuarioServiceImpl implements UsuarioService {
 			throw new Exception("Usuario no encontrado");
 		}
 	}
+
+	@Override
+	public void actualizarImagenUsuario(String correo, MultipartFile imagen) throws Exception {
+	    Usuario user = usuarioRepository.findByCorreo(correo)
+	            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+	    String imageUrl = googleDriveService.uploadImage(imagen,"usuarios");
+	    user.setFoto(imageUrl);
+
+	    usuarioRepository.save(user);
+	}
+
 }
