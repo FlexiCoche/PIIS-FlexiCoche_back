@@ -1,6 +1,5 @@
 package com.ucam.flexicoche.controller;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +23,7 @@ import com.ucam.flexicoche.model.Furgoneta;
 import com.ucam.flexicoche.model.ImagenVehiculo;
 import com.ucam.flexicoche.model.Moto;
 import com.ucam.flexicoche.model.Vehiculo;
-import com.ucam.flexicoche.service.GoogleDriveService;
+import com.ucam.flexicoche.service.CloudinaryService;
 import com.ucam.flexicoche.service.impl.VehiculoServiceImpl;
 
 @RestController
@@ -35,7 +34,7 @@ public class VehiculoController {
 	private VehiculoServiceImpl vehiculoServiceImpl;
 	
 	@Autowired
-	private GoogleDriveService googleDriveService;
+	private CloudinaryService googleDriveService;
 
 	@Autowired
 	private FlexiCocheMapper mapper;
@@ -94,35 +93,23 @@ public class VehiculoController {
 	    return ResponseEntity.ok(localizaciones);
 	}
 
-
-	// Añadir vehículo
-	/*@PostMapping("/add")
-	public ResponseEntity<Vehiculo> setVehiculo(@RequestBody Vehiculo vehiculo) {
-		return ResponseEntity.ok(vehiculoServiceImpl.setVehiculo(vehiculo));
-	}*/
-	
-	
 	@PostMapping("/add")
 	public ResponseEntity<Vehiculo> setVehiculoConImagen(
 	        @RequestPart("vehiculo") String vehiculoJson,
 	        @RequestPart("imagen") MultipartFile imagen) {
 	    try {
 	        ObjectMapper objectMapper = new ObjectMapper();
-	        //Vehiculo vehiculo = objectMapper.readValue(vehiculoJson, Vehiculo.class);
 	        JsonNode rootNode = objectMapper.readTree(vehiculoJson);
 
-	        // 1. Obtener y eliminar el campo "tipo" del JSON
 	        String tipo = rootNode.has("tipo") ? rootNode.get("tipo").asText() : null;
 	        if (rootNode instanceof ObjectNode) {
 	            ((ObjectNode) rootNode).remove("tipo");
 	        }
 
-	        // 2. Deserializar en la clase hija correspondiente
 	        Vehiculo vehiculo;
 	        if (rootNode.has("localizacion") && rootNode.get("localizacion").isInt()) {
 	            int idLocalizacion = rootNode.get("localizacion").asInt();
 	            
-	            // Sustituir el número por un objeto JSON del tipo que Jackson espera
 	            ObjectNode localizacionNode = objectMapper.createObjectNode();
 	            localizacionNode.put("localizacion", idLocalizacion);
 	            ((ObjectNode) rootNode).set("localizacion", localizacionNode);
@@ -142,12 +129,12 @@ public class VehiculoController {
 	                vehiculo = objectMapper.treeToValue(rootNode, Camion.class);
 	                break;
 	            default:
-	                return ResponseEntity.badRequest().build(); // tipo inválido
+	                return ResponseEntity.badRequest().build(); 
 	        }
 	        
 	        Vehiculo vehiculoGuardado = vehiculoServiceImpl.setVehiculo(vehiculo); 
-	        
-	        String imageUrl = googleDriveService.uploadFile(imagen);
+
+	        String imageUrl = googleDriveService.uploadImage(imagen, "vehiculos");
 
 	        ImagenVehiculo imagenVehiculo = new ImagenVehiculo();
 	        imagenVehiculo.setImagen(imageUrl);
@@ -166,38 +153,17 @@ public class VehiculoController {
 	    }
 	}
 	
-	/*@PostMapping("/add")
-	public ResponseEntity<Vehiculo> setVehiculoConImagen(
-	        @RequestPart("vehiculo") String vehiculoJson,
-	        @RequestPart("imagen") MultipartFile imagen) {
-	    try {
-	        ObjectMapper objectMapper = new ObjectMapper();
-	        Vehiculo vehiculo = objectMapper.readValue(vehiculoJson, Vehiculo.class);
-	        System.out.println(vehiculo.getId());
-	        String imageUrl = googleDriveService.uploadFile(imagen);
-	        ImagenVehiculo imagenVehiculo = new ImagenVehiculo();
-	        imagenVehiculo.setImagen(imageUrl);
-	        imagenVehiculo.setId_vehiculo(vehiculo.getId());
-	        vehiculo.setImagen(imagenVehiculo);
-
-	        Vehiculo guardado = vehiculoServiceImpl.setVehiculo(vehiculo);
-	        return ResponseEntity.ok(guardado);
-
-	    } catch (Exception e) {
-	        e.printStackTrace();  // LOG del error
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-	    }
-	}*/
-
-	// Actualizar color y precio
 	@PutMapping("/updateVehiculo/{matricula}")
-	public ResponseEntity<Vehiculo> updateVehiculo(
-			@PathVariable String matricula,
-			@RequestParam String color,
-			@RequestParam Float precio
-	) {
-		Vehiculo actualizado = vehiculoServiceImpl.updateVehiculo(matricula, color, precio);
-		return ResponseEntity.ok(actualizado);
+	public ResponseEntity<Vehiculo> editarVehiculo(
+	        @PathVariable String matricula,
+	        @RequestBody Vehiculo vehiculoActualizado) {
+	    try {
+	        Vehiculo vehiculo = vehiculoServiceImpl.updateVehiculo(matricula, vehiculoActualizado);
+	        return ResponseEntity.ok(vehiculo);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(null);
+	    }
 	}
 
 	// Cambiar disponibilidad

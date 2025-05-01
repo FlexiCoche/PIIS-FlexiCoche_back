@@ -24,7 +24,8 @@ public interface VehiculoService {
 	Vehiculo setVehiculo(Vehiculo vehiculo);
 	
 	// Actualizar campos vehiculo (color, precio)
-	Vehiculo updateVehiculo(String matricula, String color, Float precio);
+	//Vehiculo updateVehiculo(String matricula, String color, Float precio);
+	Vehiculo updateVehiculo(String matricula, Vehiculo vehiculo);
 	
 	// Actualizar estado vehiculo
 	Vehiculo updateStateVehiculo(String matricula, int disponibilidad);
