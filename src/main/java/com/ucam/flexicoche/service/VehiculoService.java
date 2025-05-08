@@ -21,31 +21,31 @@ public interface VehiculoService {
 	/*List<Vehiculo> findVehiculoByDisponibilidad(LocalDate fecha);*/
 		
 	// Guarda vehiculo
-	Vehiculo setVehiculo(Vehiculo vehiculo);
+	Vehiculo setVehiculo(String correo, Vehiculo vehiculo);
 	
 	// Actualizar campos vehiculo (color, precio)
 	//Vehiculo updateVehiculo(String matricula, String color, Float precio);
-	Vehiculo updateVehiculo(String matricula, Vehiculo vehiculo);
+	Vehiculo updateVehiculo(String correo, String matricula, Vehiculo vehiculo);
 	
 	// Actualizar estado vehiculo
-	Vehiculo updateStateVehiculo(String matricula, int disponibilidad);
+	Vehiculo updateStateVehiculo(String correo, String matricula, int disponibilidad);
 	
 	// Eliminar vehiculo
-	public void deleteVehiculo(String matricula);
+	public void deleteVehiculo(String correo, String matricula);
 	
 
 	/*-------- Metodos Coche -------*/
 	
 	// Actualizar campos coche
-	Coche updateVehiculoCoche(String matricula, String carroceria, int puertas, int potencia);
+	Coche updateVehiculoCoche(String correo, String matricula, String carroceria, int puertas, int potencia);
 	
 	// Actualizar campos coche
-	Coche updateVehiculoCochePotencia(String matricula, int potencia);
+	Coche updateVehiculoCochePotencia(String correo, String matricula, int potencia);
 
 	/*-------- Metodos Imagen Vehiculo -------*/
 
 	// Actualizar imagen
-	Vehiculo updateVehiculoImagenDesdeURL(String matricula, String imageUrl);
+	Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, String imageUrl);
 
 
 }

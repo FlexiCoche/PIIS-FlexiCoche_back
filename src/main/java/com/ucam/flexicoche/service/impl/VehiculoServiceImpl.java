@@ -2,6 +2,7 @@ package com.ucam.flexicoche.service.impl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import com.ucam.flexicoche.dto.LocalizacionDTO;
 import com.ucam.flexicoche.dto.VehiculoDTO;
 import com.ucam.flexicoche.mapper.FlexiCocheMapper;
 import com.ucam.flexicoche.model.*;
+import com.ucam.flexicoche.repository.UsuarioRepository;
 import com.ucam.flexicoche.repository.VehiculoRepository;
 import com.ucam.flexicoche.service.VehiculoService;
 import com.ucam.flexicoche.specification.VehiculoSpecification;
@@ -21,6 +23,8 @@ public class VehiculoServiceImpl implements VehiculoService {
 	@Autowired
 	private VehiculoRepository vehiculoRepository;
 
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 	@Autowired
 	private FlexiCocheMapper flexiCocheMapper;
 
@@ -77,7 +81,15 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// ➕ Crear nuevo vehículo
 	@Override
-	public Vehiculo setVehiculo(Vehiculo vehiculo) {
+	public Vehiculo setVehiculo(String correo, Vehiculo vehiculo) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para crear vehículos");
+			}
+		}
 		return vehiculoRepository.save(vehiculo);
 	}
 
@@ -95,7 +107,16 @@ public class VehiculoServiceImpl implements VehiculoService {
 	}*/
 	
 	@Override
-	public Vehiculo updateVehiculo(String matricula, Vehiculo vehiculoActualizado) {
+	public Vehiculo updateVehiculo(String correo, String matricula, Vehiculo vehiculoActualizado) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+			}
+		}
+		
 	    Vehiculo existente = vehiculoRepository.findByMatricula(matricula);
 	    if (existente == null) {
 	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
@@ -129,7 +150,16 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// 🟢 Cambiar disponibilidad
 	@Override
-	public Vehiculo updateStateVehiculo(String matricula, int disponibilidad) {
+	public Vehiculo updateStateVehiculo(String correo, String matricula, int disponibilidad) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para modificar el estado de vehículos");
+			}
+		}
+		
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		if (vehiculo == null) {
 			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
@@ -141,13 +171,31 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// 🗑️ Eliminar vehículo
 	@Override
-	public void deleteVehiculo(String matricula) {
+	public void deleteVehiculo(String correo, String matricula) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para eliminar vehículos");
+			}
+		}
+		
 		vehiculoRepository.deleteByMatricula(matricula);
 	}
 
 	// 🖼️ Actualizar imagen desde URL
 	@Override
-	public Vehiculo updateVehiculoImagenDesdeURL(String matricula, String imageUrl) {
+	public Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, String imageUrl) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para modificar el estado de vehículos");
+			}
+		}
+		
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		if (vehiculo == null) {
 			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
@@ -166,7 +214,16 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// ⚙️ Actualizar campos de coche
 	@Override
-	public Coche updateVehiculoCoche(String matricula, String carroceria, int puertas, int potencia) {
+	public Coche updateVehiculoCoche(String correo, String matricula, String carroceria, int puertas, int potencia) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+			}
+		}
+		
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		if (vehiculo == null) {
 			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
@@ -185,7 +242,16 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// ⚙️ Actualizar solo la potencia del coche
 	@Override
-	public Coche updateVehiculoCochePotencia(String matricula, int potencia) {
+	public Coche updateVehiculoCochePotencia(String correo, String matricula, int potencia) {
+		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+		if (usuarioOpt.isPresent()) {
+			Usuario usuario = usuarioOpt.get();
+			if (!usuario.getRoles().contains("ADMIN")) {
+				throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+			}
+		}
+		
 		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		if (vehiculo == null) {
 			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
