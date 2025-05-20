@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -132,7 +134,15 @@ public class VehiculoController {
 	                return ResponseEntity.badRequest().build(); 
 	        }
 	        
-	        Vehiculo vehiculoGuardado = vehiculoServiceImpl.setVehiculo(vehiculo); 
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+			if (authentication == null || authentication.getName() == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			}
+
+			String correo = authentication.getName();
+	        
+	        Vehiculo vehiculoGuardado = vehiculoServiceImpl.setVehiculo(correo, vehiculo); 
 
 	        String imageUrl = googleDriveService.uploadImage(imagen, "vehiculos");
 
@@ -143,7 +153,7 @@ public class VehiculoController {
 
 	        vehiculoGuardado.setImagen(imagenVehiculo);
 
-	        Vehiculo guardadoConImagen = vehiculoServiceImpl.setVehiculo(vehiculoGuardado);
+	        Vehiculo guardadoConImagen = vehiculoServiceImpl.setVehiculo(correo, vehiculoGuardado);
 
 	        return ResponseEntity.ok(guardadoConImagen);
 
@@ -158,7 +168,15 @@ public class VehiculoController {
 	        @PathVariable String matricula,
 	        @RequestBody Vehiculo vehiculoActualizado) {
 	    try {
-	        Vehiculo vehiculo = vehiculoServiceImpl.updateVehiculo(matricula, vehiculoActualizado);
+	    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+			if (authentication == null || authentication.getName() == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			}
+
+			String correo = authentication.getName();
+			
+	        Vehiculo vehiculo = vehiculoServiceImpl.updateVehiculo(correo, matricula, vehiculoActualizado);
 	        return ResponseEntity.ok(vehiculo);
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -172,7 +190,15 @@ public class VehiculoController {
 			@PathVariable String matricula,
 			@RequestParam int disponibilidad
 	) {
-		Vehiculo actualizado = vehiculoServiceImpl.updateStateVehiculo(matricula, disponibilidad);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+		
+		Vehiculo actualizado = vehiculoServiceImpl.updateStateVehiculo(correo, matricula, disponibilidad);
 		return ResponseEntity.ok(actualizado);
 	}
 
@@ -182,8 +208,16 @@ public class VehiculoController {
 			@PathVariable String matricula,
 			@RequestParam String imageUrl
 	) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+		
 		try {
-			vehiculoServiceImpl.updateVehiculoImagenDesdeURL(matricula, imageUrl);
+			vehiculoServiceImpl.updateVehiculoImagenDesdeURL(correo, matricula, imageUrl);
 			return ResponseEntity.ok("Imagen actualizada correctamente.");
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -199,7 +233,15 @@ public class VehiculoController {
 			@RequestParam int puertas,
 			@RequestParam int potencia
 	) {
-		Coche actualizado = vehiculoServiceImpl.updateVehiculoCoche(matricula, carroceria, puertas, potencia);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+		
+		Coche actualizado = vehiculoServiceImpl.updateVehiculoCoche(correo, matricula, carroceria, puertas, potencia);
 		return ResponseEntity.ok(actualizado);
 	}
 
@@ -209,14 +251,30 @@ public class VehiculoController {
 			@PathVariable String matricula,
 			@RequestParam int potencia
 	) {
-		Coche actualizado = vehiculoServiceImpl.updateVehiculoCochePotencia(matricula, potencia);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String correo = authentication.getName();
+		
+		Coche actualizado = vehiculoServiceImpl.updateVehiculoCochePotencia(correo, matricula, potencia);
 		return ResponseEntity.ok(actualizado);
 	}
 
 	// Eliminar vehículo
 	@DeleteMapping("/{matricula}")
 	public void deleteVehiculo(@PathVariable String matricula) {
-		vehiculoServiceImpl.deleteVehiculo(matricula);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getName() == null) {
+			return;
+		}
+
+		String correo = authentication.getName();
+		
+		vehiculoServiceImpl.deleteVehiculo(correo, matricula);
 	}
 	
 }
