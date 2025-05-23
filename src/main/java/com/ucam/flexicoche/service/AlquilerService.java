@@ -19,4 +19,7 @@ public interface AlquilerService {
 	void anularAlquiler(Long id);
 
 	void cambiarEstado(String correo, EstadoDTO estado) throws Exception;
+	
+    void deleteAllByVehiculoId(Long vehiculoId);
+
 }

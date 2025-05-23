@@ -2,7 +2,12 @@ package com.ucam.flexicoche.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ucam.flexicoche.model.Camion;
 import com.ucam.flexicoche.model.Coche;
+import com.ucam.flexicoche.model.Furgoneta;
+import com.ucam.flexicoche.model.Moto;
 import com.ucam.flexicoche.model.Vehiculo;
 
 public interface VehiculoService {
@@ -38,14 +43,24 @@ public interface VehiculoService {
 	
 	// Actualizar campos coche
 	Coche updateVehiculoCoche(String correo, String matricula, String carroceria, int puertas, int potencia);
+		
+	/*-------- Metodos Moto -------*/
 	
-	// Actualizar campos coche
-	Coche updateVehiculoCochePotencia(String correo, String matricula, int potencia);
+	Moto updateVehiculoMoto(String correo, String matricula, int cilindrada, int baul);
 
+	/*-------- Metodos Furgoneta -------*/
+	
+	Furgoneta updateVehiculoFurgoneta(String correo, String matricula, float volumen, float longitud, float pesoMax);
+
+	/*-------- Metodos Camion -------*/
+
+	Camion updateVehiculoCamion(String correo, String matricula, float altura, int numRemolques, String tipoCarga,
+			String matriculaRemolque, float pesoMax);
+	
 	/*-------- Metodos Imagen Vehiculo -------*/
 
 	// Actualizar imagen
-	Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, String imageUrl);
+	Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, MultipartFile imageUrl) throws Exception;
 
 
 }

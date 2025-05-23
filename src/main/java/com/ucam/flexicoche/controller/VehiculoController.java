@@ -206,7 +206,7 @@ public class VehiculoController {
 	@PutMapping("/{matricula}/imagen")
 	public ResponseEntity<String> actualizarImagen(
 			@PathVariable String matricula,
-			@RequestParam String imageUrl
+			@RequestPart("imagen")  MultipartFile imageUrl
 	) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -244,24 +244,67 @@ public class VehiculoController {
 		Coche actualizado = vehiculoServiceImpl.updateVehiculoCoche(correo, matricula, carroceria, puertas, potencia);
 		return ResponseEntity.ok(actualizado);
 	}
-
-	// Solo potencia
-	@PutMapping("/updatePotencia/{matricula}")
-	public ResponseEntity<Coche> updatePotencia(
-			@PathVariable String matricula,
-			@RequestParam int potencia
+	
+	// Actualizar campos específicos de moto
+	@PutMapping("/updateVehiculoMoto/{matricula}")
+	public ResponseEntity<Moto> updateVehiculoMoto(
+	        @PathVariable String matricula,
+	        @RequestParam int cilindrada,
+	        @RequestParam int baul
 	) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    if (authentication == null || authentication.getName() == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
 
-		if (authentication == null || authentication.getName() == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-
-		String correo = authentication.getName();
-		
-		Coche actualizado = vehiculoServiceImpl.updateVehiculoCochePotencia(correo, matricula, potencia);
-		return ResponseEntity.ok(actualizado);
+	    String correo = authentication.getName();
+	    Moto actualizado = vehiculoServiceImpl.updateVehiculoMoto(correo, matricula, cilindrada, baul);
+	    return ResponseEntity.ok(actualizado);
 	}
+	
+	// Actualizar campos específicos de furgoneta
+	@PutMapping("/updateVehiculoFurgoneta/{matricula}")
+	public ResponseEntity<Furgoneta> updateVehiculoFurgoneta(
+	        @PathVariable String matricula,
+	        @RequestParam float volumen,
+	        @RequestParam float longitud,
+	        @RequestParam float pesoMax
+	) {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	    if (authentication == null || authentication.getName() == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
+
+	    String correo = authentication.getName();
+
+	    Furgoneta actualizada = vehiculoServiceImpl.updateVehiculoFurgoneta(correo, matricula, volumen, longitud, pesoMax);
+	    return ResponseEntity.ok(actualizada);
+	}
+
+	// Actualizar campos específicos de camion
+	@PutMapping("/updateVehiculoCamion/{matricula}")
+	public ResponseEntity<Camion> updateVehiculoCamion(
+	        @PathVariable String matricula,
+	        @RequestParam float altura,
+	        @RequestParam int numRemolques,
+	        @RequestParam String tipoCarga,
+	        @RequestParam String matriculaRemolque,
+	        @RequestParam float pesoMax
+	) {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+	    if (authentication == null || authentication.getName() == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
+
+	    String correo = authentication.getName();
+
+	    Camion actualizado = vehiculoServiceImpl.updateVehiculoCamion(
+	            correo, matricula, altura, numRemolques, tipoCarga, matriculaRemolque, pesoMax);
+	    return ResponseEntity.ok(actualizado);
+	}
+
 
 	// Eliminar vehículo
 	@DeleteMapping("/{matricula}")

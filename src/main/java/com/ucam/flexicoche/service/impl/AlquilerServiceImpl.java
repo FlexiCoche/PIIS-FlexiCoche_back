@@ -225,4 +225,10 @@ public class AlquilerServiceImpl implements AlquilerService {
 		}
 	}
 
+    @Override
+    @Transactional
+    public void deleteAllByVehiculoId(Long vehiculoId) {
+        alquilerRepository.deleteAllByVehiculoId(vehiculoId);
+    }
+
 }

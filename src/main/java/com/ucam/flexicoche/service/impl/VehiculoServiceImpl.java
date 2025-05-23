@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ucam.flexicoche.dto.LocalizacionDTO;
 import com.ucam.flexicoche.dto.VehiculoDTO;
@@ -14,6 +16,7 @@ import com.ucam.flexicoche.mapper.FlexiCocheMapper;
 import com.ucam.flexicoche.model.*;
 import com.ucam.flexicoche.repository.UsuarioRepository;
 import com.ucam.flexicoche.repository.VehiculoRepository;
+import com.ucam.flexicoche.service.CloudinaryService;
 import com.ucam.flexicoche.service.VehiculoService;
 import com.ucam.flexicoche.specification.VehiculoSpecification;
 
@@ -25,8 +28,15 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private AlquilerServiceImpl alquilerServiceImpl;
+	
 	@Autowired
 	private FlexiCocheMapper flexiCocheMapper;
+
+	@Autowired
+	private CloudinaryService googleDriveService;
 
 	// 🔍 Búsqueda múltiple con Specification
 	public List<Vehiculo> buscarVehiculos(String tipo, String marca, String modelo, String localizacion, String color,
@@ -92,19 +102,6 @@ public class VehiculoServiceImpl implements VehiculoService {
 		}
 		return vehiculoRepository.save(vehiculo);
 	}
-
-	// 🖊️ Actualizar color y precio
-	/*@Override
-	public Vehiculo updateVehiculo(String matricula, String color, Float precio) {
-		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
-		if (vehiculo == null) {
-			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
-		}
-
-		vehiculo.setColor(color);
-		vehiculo.setPrecioDia(precio);
-		return vehiculoRepository.save(vehiculo);
-	}*/
 	
 	@Override
 	public Vehiculo updateVehiculo(String correo, String matricula, Vehiculo vehiculoActualizado) {
@@ -133,16 +130,34 @@ public class VehiculoServiceImpl implements VehiculoService {
 	    existente.setLocalizacion(vehiculoActualizado.getLocalizacion());
 	    existente.setDisponibilidad(vehiculoActualizado.getDisponibilidad());
 
-	    // Si es coche, moto, etc. puedes mapear sus campos específicos también:
+	    // Campos particulares
 	    if (existente instanceof Coche && vehiculoActualizado instanceof Coche) {
 	        Coche cocheExistente = (Coche) existente;
 	        Coche cocheActualizado = (Coche) vehiculoActualizado;
 	        cocheExistente.setCarroceria(cocheActualizado.getCarroceria());
 	        cocheExistente.setPuertas(cocheActualizado.getPuertas());
 	        cocheExistente.setPotencia(cocheActualizado.getPotencia());
+	    } else if (existente instanceof Moto && vehiculoActualizado instanceof Moto) {
+	        Moto existenteMoto = (Moto) existente;
+	        Moto actualizadoMoto = (Moto) vehiculoActualizado;
+	        existenteMoto.setCilindrada(actualizadoMoto.getCilindrada());
+	        existenteMoto.setBaul(actualizadoMoto.getBaul());
+	    } else if (existente instanceof Furgoneta && vehiculoActualizado instanceof Furgoneta) {
+	        Furgoneta existenteFurgo = (Furgoneta) existente;
+	        Furgoneta actualizadoFurgo = (Furgoneta) vehiculoActualizado;
+	        existenteFurgo.setVolumen(actualizadoFurgo.getVolumen());
+	        existenteFurgo.setLongitud(actualizadoFurgo.getLongitud());
+	        existenteFurgo.setPesoMax(actualizadoFurgo.getPesoMax());
+	    } else if (existente instanceof Camion && vehiculoActualizado instanceof Camion) {
+	        Camion existenteCamion = (Camion) existente;
+	        Camion actualizadoCamion = (Camion) vehiculoActualizado;
+	        existenteCamion.setAltura(actualizadoCamion.getAltura());
+	        existenteCamion.setNumRemolques(actualizadoCamion.getNumRemolques());
+	        existenteCamion.setTipoCarga(actualizadoCamion.getTipoCarga());
+	        existenteCamion.setMatriculaRemolque(actualizadoCamion.getMatriculaRemolque());
+	        existenteCamion.setPesoMax(actualizadoCamion.getPesoMax());
 	    }
 
-	    // Puedes añadir más bloques similares para Moto, Furgoneta, etc.
 
 	    return vehiculoRepository.save(existente);
 	}
@@ -171,6 +186,7 @@ public class VehiculoServiceImpl implements VehiculoService {
 
 	// 🗑️ Eliminar vehículo
 	@Override
+	@Transactional
 	public void deleteVehiculo(String correo, String matricula) {
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
 
@@ -180,13 +196,16 @@ public class VehiculoServiceImpl implements VehiculoService {
 				throw new RuntimeException("El usuario no tiene permisos para eliminar vehículos");
 			}
 		}
+		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
 		
+		alquilerServiceImpl.deleteAllByVehiculoId(vehiculo.getId());
 		vehiculoRepository.deleteByMatricula(matricula);
 	}
 
-	// 🖼️ Actualizar imagen desde URL
+	
 	@Override
-	public Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, String imageUrl) {
+	public Vehiculo updateVehiculoImagenDesdeURL(String correo, String matricula, MultipartFile imagen) throws Exception {
+	    // Validar que el usuario es ADMIN
 		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
 
 		if (usuarioOpt.isPresent()) {
@@ -195,22 +214,31 @@ public class VehiculoServiceImpl implements VehiculoService {
 				throw new RuntimeException("El usuario no tiene permisos para modificar el estado de vehículos");
 			}
 		}
-		
-		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
-		if (vehiculo == null) {
-			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
-		}
 
-		ImagenVehiculo imagenVehiculo = vehiculo.getImagen();
-		if (imagenVehiculo == null) {
-			imagenVehiculo = new ImagenVehiculo();
-			imagenVehiculo.setVehiculo(vehiculo);
-			vehiculo.setImagen(imagenVehiculo);
-		}
+	    // Buscar vehículo
+	    Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+	    if (vehiculo == null) {
+	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+	    }
 
-		imagenVehiculo.setImagen(imageUrl);
-		return vehiculoRepository.save(vehiculo);
+	    // Subir imagen a Google Drive
+	    String imageUrl = googleDriveService.uploadImage(imagen, "vehiculos");
+
+	    // Obtener o crear entidad ImagenVehiculo
+	    ImagenVehiculo imagenVehiculo = vehiculo.getImagen();
+	    if (imagenVehiculo == null) {
+	        imagenVehiculo = new ImagenVehiculo();
+	        imagenVehiculo.setImagen(imageUrl);
+	        imagenVehiculo.setVehiculo(vehiculo);
+	        imagenVehiculo.setId_vehiculo(vehiculo.getId());
+	        vehiculo.setImagen(imagenVehiculo);
+	    } else if (imagenVehiculo.getId_vehiculo() == null) {
+	        imagenVehiculo.setId_vehiculo(vehiculo.getId()); // También cubre el caso si la imagen no tiene ID
+	    }
+
+	    return vehiculoRepository.save(vehiculo);
 	}
+	
 
 	// ⚙️ Actualizar campos de coche
 	@Override
@@ -240,29 +268,92 @@ public class VehiculoServiceImpl implements VehiculoService {
 		return vehiculoRepository.save(coche);
 	}
 
-	// ⚙️ Actualizar solo la potencia del coche
+
+	// ⚙️ Actualizar campos de moto
 	@Override
-	public Coche updateVehiculoCochePotencia(String correo, String matricula, int potencia) {
-		Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+	public Moto updateVehiculoMoto(String correo, String matricula, int cilindrada, int baul) {
+	    Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
 
-		if (usuarioOpt.isPresent()) {
-			Usuario usuario = usuarioOpt.get();
-			if (!usuario.getRoles().contains("ADMIN")) {
-				throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
-			}
-		}
-		
-		Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
-		if (vehiculo == null) {
-			throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
-		}
+	    if (usuarioOpt.isPresent()) {
+	        Usuario usuario = usuarioOpt.get();
+	        if (!usuario.getRoles().contains("ADMIN")) {
+	            throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+	        }
+	    }
 
-		if (!(vehiculo instanceof Coche)) {
-			throw new RuntimeException("El vehículo con matrícula " + matricula + " no es un coche.");
-		}
+	    Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+	    if (vehiculo == null) {
+	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+	    }
 
-		Coche coche = (Coche) vehiculo;
-		coche.setPotencia(potencia);
-		return vehiculoRepository.save(coche);
+	    if (!(vehiculo instanceof Moto)) {
+	        throw new RuntimeException("El vehículo con matrícula " + matricula + " no es una moto.");
+	    }
+
+	    Moto moto = (Moto) vehiculo;
+	    moto.setCilindrada(cilindrada);
+	    moto.setBaul(baul);
+	    return vehiculoRepository.save(moto);
 	}
+
+	// ⚙️ Actualizar campos de furgoneta
+
+	@Override
+	public Furgoneta updateVehiculoFurgoneta(String correo, String matricula, float volumen, float longitud, float pesoMax) {
+	    Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+	    if (usuarioOpt.isPresent()) {
+	        Usuario usuario = usuarioOpt.get();
+	        if (!usuario.getRoles().contains("ADMIN")) {
+	            throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+	        }
+	    }
+
+	    Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+	    if (vehiculo == null) {
+	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+	    }
+
+	    if (!(vehiculo instanceof Furgoneta)) {
+	        throw new RuntimeException("El vehículo con matrícula " + matricula + " no es una furgoneta.");
+	    }
+
+	    Furgoneta furgo = (Furgoneta) vehiculo;
+	    furgo.setVolumen(volumen);
+	    furgo.setLongitud(longitud);
+	    furgo.setPesoMax(pesoMax);
+	    return vehiculoRepository.save(furgo);
+	}
+
+	// ⚙️ Actualizar campos de camion
+	@Override
+	public Camion updateVehiculoCamion(String correo, String matricula, float altura, int numRemolques, String tipoCarga, String matriculaRemolque, float pesoMax) {
+	    Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
+
+	    if (usuarioOpt.isPresent()) {
+	        Usuario usuario = usuarioOpt.get();
+	        if (!usuario.getRoles().contains("ADMIN")) {
+	            throw new RuntimeException("El usuario no tiene permisos para modificar vehículos");
+	        }
+	    }
+
+	    Vehiculo vehiculo = vehiculoRepository.findByMatricula(matricula);
+	    if (vehiculo == null) {
+	        throw new RuntimeException("Vehículo no encontrado con matrícula: " + matricula);
+	    }
+
+	    if (!(vehiculo instanceof Camion)) {
+	        throw new RuntimeException("El vehículo con matrícula " + matricula + " no es un camión.");
+	    }
+
+	    Camion camion = (Camion) vehiculo;
+	    camion.setAltura(altura);
+	    camion.setNumRemolques(numRemolques);
+	    camion.setTipoCarga(tipoCarga);
+	    camion.setMatriculaRemolque(matriculaRemolque);
+	    camion.setPesoMax(pesoMax);
+	    return vehiculoRepository.save(camion);
+	}
+
+
 }
